@@ -1,0 +1,45 @@
+Spring源码学习
+1 Spring IOC Bean生命周期解析；
+2 Bean循环依赖是怎么发生的；
+3 Spring源码多级缓存如何解析循环依赖？
+
+
+1 org.springframework.context.support.AbstractApplicationContext#refresh
+2 org.springframework.context.support.AbstractApplicationContext#finishBeanFactoryInitialization 
+	-> beanFactory.preInstantiateSingletons();
+3 org.springframework.beans.factory.config.ConfigurableListableBeanFactory#preInstantiateSingletons
+	从beanDefinitionNames的Bean定义信息中逐个解析每一个bean->
+4 org.springframework.beans.factory.support.AbstractBeanFactory#getBean(java.lang.String)
+5 org.springframework.beans.factory.support.AbstractBeanFactory#doGetBean
+	5.1)transformedBeanName解析别名；
+	5.2)getSingleton 首先从Bean的单例缓存池中获取对象，由于是每一次创建bean，所以缓存池中没有对象
+		5.2.1 首先从singletonObjects单例的一次缓存中获取对象；
+		5.2.2 一级缓存中没有从earlySingletonObjects二级缓存中获取，此处的二级缓存中存放的是bean的早期对象；
+		5.2.3 二级缓存中没有，从singletonFactories三级缓存中获取，三级缓存中存放的是bean工厂；
+	5.3 isPrototypeCurrentlyInCreation判断当前bean是不是prototype类型，是的话抛出异常；
+	5.4 判断当前容器是不是有父容器，有的话尝试从父容器中获取bean；
+	5.5 markBeanAsCreated标记当前bean是正在创建的bean,把当前bean名称放入alreadyCreated集合中；
+	5.5 getMergedLocalBeanDefinition合并bean定义，主要是处理抽象bean情况；
+	5.6 AbstractBeanDefinition#getDependsOn 处理@DependsOn注解所配置的逻辑依赖关系；
+	5.7 DefaultSingletonBeanRegistry#getSingleton 此接口的第二个参数是当前创建bean的工厂
+		5.7.1 singletonObjects尝试从bean的单例缓存池中获取bean;
+		5.7.2 beforeSingletonCreation
+		5.7.3 singletonFactory.getObject()调用当前bean的工厂创建bean;
+		5.7.4 afterSingletonCreation
+6 AbstractBeanFactory#createBean 此处是5.7.3 bean工厂回调的；
+7 AbstractAutowireCapableBeanFactory#createBean
+8 AbstractAutowireCapableBeanFactory#doCreateBean
+9 AbstractAutowireCapableBeanFactory#createBeanInstance自用反射构造函数创建bean
+10 AbstractAutowireCapableBeanFactory#populateBean 处理autowired依赖注入的属性
+	10.1 InstantiationAwareBeanPostProcessor#postProcessPropertyValues
+	10.2 org.springframework.beans.factory.annotation.InjectionMetadata#inject
+	10.3 AutowireCapableBeanFactory#resolveDependency解析bean依赖
+	10.4 DefaultListableBeanFactory#doResolveDependency
+	10.5 DependencyDescriptor#resolveCandidate
+	10.6 beanFactory.getBean获取bean，如果bean没有创建再走创建流程，对于循环依赖因为之前已经创建了一个bean在三级缓存中
+		所以这个bean创建过程中可以用之前的bean
+	
+	
+https://javadoop.com/post/spring-ioc	
+
+假如读者想分析 <context:property-placeholder location="classpath:xx.properties" /> 的实现原理，就应该到 ContextNamespaceHandler 中找答案。	
