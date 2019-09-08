@@ -1,0 +1,95 @@
+
+https://gradle.org/releases/
+https://services.gradle.org/distributions/gradle-4.4.1-all.zip
+gradle 4.4.1
+jdk1.8
+IDEA
+
+https://github.com/spring-projects/spring-framework/tags
+
+下载spring源码
+https://github.com/spring-projects/spring-framework/archive/v5.0.14.RELEASE.zip
+https://github.com/spring-projects/spring-framework/archive/v3.2.18.RELEASE.zip
+
+\spring-framework-5.0.14.RELEASE\gradle\docs.gradle
+//dokka {
+//	dependsOn {
+//		tasks.getByName("api")
+//	}
+//	doFirst {
+//		classpath = subprojects.collect { project -> project.jar.outputs.files.getFiles() }.flatten()
+//		classpath += files(subprojects.collect { it.sourceSets.main.compileClasspath })
+//
+//	}
+//	moduleName = "spring-framework"
+//	outputFormat = "html"
+//	outputDirectory = "$buildDir/docs/kdoc"
+//
+//	sourceDirs = files(subprojects.collect { project ->
+//		def kotlinDirs = project.sourceSets.main.kotlin.srcDirs.collect()
+//		kotlinDirs -= project.sourceSets.main.java.srcDirs
+//	})
+//	externalDocumentationLink {
+//		url = new URL("https://docs.spring.io/spring-framework/docs/$version/javadoc-api/")
+//		packageListUrl = new File(buildDir, "api/package-list").toURI().toURL()
+//	}
+//	externalDocumentationLink {
+//		url = new URL("https://projectreactor.io/docs/core/release/api/")
+//	}
+//	externalDocumentationLink {
+//		url = new URL("https://www.reactive-streams.org/reactive-streams-1.0.1-javadoc/")
+//	}
+//}
+
+//asciidoctor {
+//	sources {
+//		include '*.adoc'
+//	}
+//	resources {
+//		from(sourceDir) {
+//			include 'images/*', 'stylesheets/*', 'tocbot-3.0.2/*'
+//		}
+//	}
+//	logDocuments = true
+//	backends = ["html5"]
+//	// only ouput PDF documentation for non-SNAPSHOT builds
+//	if(!project.getVersion().toString().contains("BUILD-SNAPSHOT")) {
+//		backends += "pdf"
+//	}
+//	options doctype: 'book', eruby: 'erubis'
+//	attributes  'icons': 'font',
+//			'idprefix': '',
+//			'idseparator': '-',
+//			docinfo: '',
+//			revnumber: project.version,
+//			sectanchors: '',
+//			sectnums: '',
+//			'source-highlighter': 'coderay@', // TODO switch to 'rouge' once supported by the html5 backend
+//			stylesdir: 'stylesheets/',
+//			stylesheet: 'main.css',
+//			'spring-version': project.version
+//
+//}
+
+执行这两个项目的构建
+gradlew :spring-oxm:compileTestJava
+gradlew :spring-aspects:compileTestJava
+
+执行完成后基本上所以的jar包都生成完成
+gradle build -x test
+执行一次完整的构建
+
+IDEA中如何在spring源码中添加一个项目
+1 
+
+
+
+https://github.com/spring-projects/spring-framework/archive/v4.3.20.RELEASE.zip
+spring-framework-4.3.20.RELEASE
+gradle-2.14.1
+
+执行这两个项目的构建
+gradlew :spring-oxm:compileTestJava
+gradlew :spring-aspects:compileTestJava
+gradlew :spring-beans:compileTestJava
+
